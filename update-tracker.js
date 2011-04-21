@@ -1,8 +1,7 @@
 var https = require('https')
   , exec = require('child_process').exec
   , async = require('./async');
-
-var API_TOCKEN = '';
+var API_TOCKEN = require('./tracker_token');
 
 async.waterfall([
 	
