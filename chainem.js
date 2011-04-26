@@ -19,5 +19,5 @@ module.exports = function chainEm(/* f1, f2, f3 */) {
 	for (var i = functions.length - 1; i >= 0; i--) {
 		chain = functions[i].partial(chain);
 	}
-	chain();
+	return chain;
 }
