@@ -1,10 +1,10 @@
 var https = require('https')
-  , exec = require('child_process').exec
-  , chainEm = require('./chainem');
+	, exec = require('child_process').exec
+	, chainEm = require('./chainem');
 var API_TOCKEN = require('./tracker_token');
 
 chainEm(
-	
+
 	function read(callback) {
 		process.stdin.resume();
 		process.stdin.setEncoding('utf8');
@@ -12,7 +12,7 @@ chainEm(
 		process.stdin.on('data', function (chunk) { input += chunk; });
 		process.stdin.on('end', function() { callback(input) } );	
 	},
-	
+
 	function grepHashesAndRef(callback, input) {
 		var lines = input.split('\n');
 		var line = lines[0].split(' '); //currently only first ref
@@ -21,7 +21,7 @@ chainEm(
 		var refName = line[2];
 		callback(oldHash, newHash, refName);
 	},
-	
+
 	function grepAuthorAndMessage(callback, oldHash, newHash, refName) {
 		exec("git log -n 1 --pretty=format:'%an @@ %s' ", function (err, logMsg) {
 			var logMsgs = logMsg.split(' @@ ');
@@ -30,22 +30,22 @@ chainEm(
 			callback(message, refName, author, oldHash, newHash);
 		})
 	},
-	
+
 	function postToPivotal (callback, message, refName, author, oldHash, newHash) {
 		var post_msg = 
-			'<source_commit>'
-			+ '<message>Branch:' + refName + '\n' + message + '</message>'
-			+ '<author>' + author + '</author>'
-			+ '<commit_id>'+ oldHash + ".." + newHash + '</commit_id>'
-			+ '</source_commit>';
+		'<source_commit>'
+		+ '<message>Branch:' + refName + '\n' + message + '</message>'
+		+ '<author>' + author + '</author>'
+		+ '<commit_id>'+ oldHash + ".." + newHash + '</commit_id>'
+		+ '</source_commit>';
 
 		var options = {
 			host: 'www.pivotaltracker.com',
 			path: '/services/v3/source_commits',
 			method: 'POST',
 			headers: {'X-TrackerToken' : API_TOCKEN
-					, 'Content-type': 'application/xml'
-					, 'Content-length': post_msg.length}
+			, 'Content-type': 'application/xml'
+			, 'Content-length': post_msg.length}
 		};
 
 		//console.log(post_msg);

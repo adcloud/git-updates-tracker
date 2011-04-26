@@ -15,9 +15,9 @@ Function.prototype.partial = function() {
 
 module.exports = function chainEm(/* f1, f2, f3 */) {
 	var functions = Array.prototype.slice.call(arguments);
-    var chain = function () {};
-    for (var i = functions.length - 1; i >= 0; i--) {
-        chain = functions[i].partial(chain);
-    }
-    chain();
+	var chain = function () {};
+	for (var i = functions.length - 1; i >= 0; i--) {
+		chain = functions[i].partial(chain);
+	}
+	chain();
 }
