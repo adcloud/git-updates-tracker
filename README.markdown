@@ -1,11 +1,13 @@
 # About
 
-A utility to update the pivotal tracker with git changes. 
+A utility to inform the PivotalTracker.com of Git pushes. Iterates over commits and posts infos if it consists a vaild story number: [#123123]
 
 # Installation
 
-To install enter an Pivotal Tracker Token in tracker_token.js & and move all the files in .git/hooks of the rep that receives pushes. 
+Install Node.JS
+
+Enter a PivotalTracker Token in tracker_token.js & and move all the files in .git/hooks of the rep that receives pushes. 
 
 # Usage
 
-The last commit message before the push has to have the story number: [#123123]
+The commit messages have to contain a valid story number like: [#123123]
