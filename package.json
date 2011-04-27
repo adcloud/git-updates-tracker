@@ -1,0 +1,9 @@
+{
+	"name": "git-updates-tracker",
+	"description" : "A utility to inform the PivotalTracker.com of Git pushes.",
+	"version": "0.0.1",
+	"author" : "matthias.luebken@adcloud.com",
+	"dependencies": {
+    	"vows": "0.5.8"
+	}
+}
