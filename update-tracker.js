@@ -41,6 +41,8 @@ function gitLogAuthorAndMessage(oldHash, newHash, refName) {
 			var message = commit[2];
 			var messageContainsStoryId = message.match(/\[\#.*\]/);
 			if(messageContainsStoryId) {
+				//todo pivotal api is to slow
+				//setTimeout(function() { postToPivotal(message, refName, author, hash) }, i * 1500);
 				postToPivotal(message, refName, author, hash);
 			}
 		}		
@@ -67,8 +69,8 @@ function postToPivotal (message, refName, author, hash) {
 		, 'Content-length': post_msg.length}
 	};
 
-	console.log(post_msg);
-	/*
+	console.log('Start posting: ' + hash + " " + message);
+	
 	var req = https.request(options, function(res) {
 		var data = '';
 		res.setEncoding('utf8');
@@ -76,12 +78,16 @@ function postToPivotal (message, refName, author, hash) {
 			data += chunk;
 		});
 		res.on('end', function (chunk) {
-			console.log(data);
+			var success =  (res.statusCode === 200) ? 'success: ' : 'failed: ';
+			console.log('Post ' + success + hash + " " + message);
+			if(res.statusCode !== 200) {
+				console.log(data);
+			}
+			
 		});
 	});
 	req.write(post_msg);
 	req.end();
-	*/
 }
 
 readStdIn()
