@@ -1,6 +1,5 @@
 var https = require('https')
 	, exec = require('child_process').exec
-	, chainEm = require('./chainem');
 var API_TOCKEN = require('./tracker_token');
 
 /**
