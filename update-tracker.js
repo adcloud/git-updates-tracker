@@ -3,7 +3,7 @@ var https = require('https')
 var API_TOCKEN = require('./tracker_token');
 
 /**
- * Read from Stdin. Is written by Git as input to post-receive.
+ * Read from Stdin. Input should be Git from a post-receive.
  */
 function readStdIn() {
 	process.stdin.resume();
@@ -18,8 +18,7 @@ function readStdIn() {
  */
 function grepHashesAndRef(input) {
 	var lines = input.split('\n');
-	lines.pop();
-	console.log('lines: ' + input);
+	lines.pop();//remove last empty line
 	for (var i=0; i < lines.length; i++) {
 		var line = lines[i].split(' ');
 		var oldHash = line[0];
@@ -40,8 +39,10 @@ function gitLogAuthorAndMessage(oldHash, newHash, refName) {
 			var hash = commit[0];
 			var author = commit[1];
 			var message = commit[2];
-			//todo check of message contains id
-			postToPivotal(message, refName, author, hash);
+			var messageContainsStoryId = message.match(/\[\#.*\]/);
+			if(messageContainsStoryId) {
+				postToPivotal(message, refName, author, hash);
+			}
 		}		
 	})
 }
