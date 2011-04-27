@@ -6,48 +6,56 @@ var API_TOCKEN = require('./tracker_token');
 /**
  * Read from Stdin. Is written by Git as input to post-receive.
  */
-
-function readStdIn(callback) {
+function readStdIn() {
 	process.stdin.resume();
 	process.stdin.setEncoding('utf8');
 	var input = "";
 	process.stdin.on('data', function (chunk) { input += chunk; });
-	process.stdin.on('end', function() { callback(input) } );	
+	process.stdin.on('end', function() { grepHashesAndRef(input) } );	
 }
 
 /**
  * Grep hashes and ref from Gits post-receive input.
  */
-function grepHashesAndRef(callback, input) {
+function grepHashesAndRef(input) {
 	var lines = input.split('\n');
-	var line = lines[0].split(' '); //currently only first ref
-	var oldHash = line[0];
-	var newHash = line[1];
-	var refName = line[2];
-	callback(oldHash, newHash, refName);
+	lines.pop();
+	console.log('lines: ' + input);
+	for (var i=0; i < lines.length; i++) {
+		var line = lines[i].split(' ');
+		var oldHash = line[0];
+		var newHash = line[1];
+		var refName = line[2];
+		gitLogAuthorAndMessage(oldHash, newHash, refName);
+	}
 }
 
 /**
  * Get author and message via git log
  */
-function gitLogAuthorAndMessage(callback, oldHash, newHash, refName) {
-	exec("git log -n 1 --pretty=format:'%an @@ %s' ", function (err, logMsg) {
-		var logMsgs = logMsg.split(' @@ ');
-		var author = logMsgs[0];
-		var message = logMsgs[1];
-		callback(message, refName, author, oldHash, newHash);
+function gitLogAuthorAndMessage(oldHash, newHash, refName) {
+	exec("git log " + oldHash + ".." + newHash + " --pretty=format:'%H @@ %an @@ %s' ", function (err, data) {
+		var logCommits = data.split('\n');
+		for (var i=0; i < logCommits.length; i++) {
+			var commit = logCommits[i].split(' @@ ');
+			var hash = commit[0];
+			var author = commit[1];
+			var message = commit[2];
+			//todo check of message contains id
+			postToPivotal(message, refName, author, hash);
+		}		
 	})
 }
 
 /**
  * Posts the informations to PivotalTracker
  */
-function postToPivotal (callback, message, refName, author, oldHash, newHash) {
+function postToPivotal (message, refName, author, hash) {
 	var post_msg = 
 	'<source_commit>'
 	+ '<message>Branch:' + refName + '\n' + message + '</message>'
 	+ '<author>' + author + '</author>'
-	+ '<commit_id>'+ oldHash + ".." + newHash + '</commit_id>'
+	+ '<commit_id>' + hash + '</commit_id>'
 	+ '</source_commit>';
 
 	var options = {
@@ -59,7 +67,8 @@ function postToPivotal (callback, message, refName, author, oldHash, newHash) {
 		, 'Content-length': post_msg.length}
 	};
 
-	//console.log(post_msg);
+	console.log(post_msg);
+	/*
 	var req = https.request(options, function(res) {
 		var data = '';
 		res.setEncoding('utf8');
@@ -72,9 +81,9 @@ function postToPivotal (callback, message, refName, author, oldHash, newHash) {
 	});
 	req.write(post_msg);
 	req.end();
+	*/
 }
 
-
-chainEm(readStdIn, grepHashesAndRef, gitLogAuthorAndMessage, postToPivotal)();
+readStdIn()
 
 
