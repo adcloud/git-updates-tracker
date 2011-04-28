@@ -11,3 +11,6 @@ Enter a PivotalTracker Token in tracker_token.js & and move all the files in .gi
 # Usage
 
 The commit messages have to contain a valid story number like: [#123123]
+
+# TODOs
+- Use Notation: see #123, closes #123, fixes #123
