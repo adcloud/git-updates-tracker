@@ -31,7 +31,7 @@ function grepHashesAndRef(input) {
 /**
  * Get author and message via git log
  */
-function gitLogAuthorAndMessage(oldHash, newHash, refName) {
+function gitLogAuthorAndMessage(oldHash, newHash, refname) {
 	exec("git log " + oldHash + ".." + newHash + " --pretty=format:'%H @@ %an @@ %s' ", function (err, data) {
 		var logCommits = data.split('\n');
 		for (var i=0; i < logCommits.length; i++) {
@@ -41,9 +41,11 @@ function gitLogAuthorAndMessage(oldHash, newHash, refName) {
 			var message = commit[2];
 			var messageContainsStoryId = message.match(/\[\#.*\]/);
 			if(messageContainsStoryId) {
-				//todo pivotal api is to slow
-				//setTimeout(function() { postToPivotal(message, refName, author, hash) }, i * 1500);
-				postToPivotal(message, refName, author, hash);
+				(function (message, refname, author, hash) {
+					setTimeout(function() { 
+						postToPivotal(message, refname, author, hash) 
+					}, i * 1200);
+				})(message, refname, author, hash);
 			}
 		}		
 	})
