@@ -1,22 +1,23 @@
 var https = require('https')
+	, util = require('util')
 	, exec = require('child_process').exec
 var API_TOCKEN = require('./tracker_token');
 
 /**
  * Read from Stdin. Input should be Git from a post-receive.
  */
-function readStdIn() {
+function readStdIn(callback) {
 	process.stdin.resume();
 	process.stdin.setEncoding('utf8');
 	var input = "";
 	process.stdin.on('data', function (chunk) { input += chunk; });
-	process.stdin.on('end', function() { grepHashesAndRef(input) } );	
+	process.stdin.on('end', function(callback) { grepHashesAndRef(input, callback) } );	
 }
 
 /**
  * Grep hashes and ref from Gits post-receive input.
  */
-function grepHashesAndRef(input) {
+function grepHashesAndRef(input, callback) {
 	var lines = input.split('\n');
 	lines.pop();//remove last empty line
 	for (var i=0; i < lines.length; i++) {
@@ -24,14 +25,15 @@ function grepHashesAndRef(input) {
 		var oldHash = line[0];
 		var newHash = line[1];
 		var refName = line[2];
-		gitLogAuthorAndMessage(oldHash, newHash, refName);
+		console.log("going to call " + util.inspect(callback));
+		callback(null, oldHash, newHash, refName);
 	}
 }
 
 /**
  * Get author and message via git log
  */
-function gitLogAuthorAndMessage(oldHash, newHash, refname) {
+function gitLogAuthorAndMessage(err, oldHash, newHash, refname) {
 	exec("git log " + oldHash + ".." + newHash + " --pretty=format:'%H @@ %an @@ %s' ", function (err, data) {
 		var logCommits = data.split('\n');
 		for (var i=0; i < logCommits.length; i++) {
@@ -92,6 +94,10 @@ function postToPivotal (message, refName, author, hash) {
 	req.end();
 }
 
-readStdIn()
+exports.grepHashesAndRef = grepHashesAndRef;
+exports.gitLogAuthorAndMessage = gitLogAuthorAndMessage;
+
+
+//readStdIn(gitLogAuthorAndMessage)
 
 

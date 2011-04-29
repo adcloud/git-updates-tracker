@@ -1,2 +1,2 @@
 #!/bin/bash
-node hooks/update-tracker.js
+node hooks/update_tracker.js
