@@ -13,4 +13,5 @@ Enter a PivotalTracker Token in tracker_token.js & and move all the files in .gi
 The commit messages have to contain a valid story number like: [#123123]
 
 # TODOs
+- Find the right commits if its a new branch. http://stackoverflow.com/questions/3511057/git-receive-update-hooks-and-new-branches
 - Use Notation: see #123, closes #123, fixes #123
