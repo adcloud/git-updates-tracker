@@ -32,7 +32,12 @@ function grepHashesAndRef(input) {
  * Get author and message via git log
  */
 function gitLogAuthorAndMessage(oldHash, newHash, refname) {
-	exec("git log " + oldHash + ".." + newHash + " --pretty=format:'%H @@ %an @@ %s' ", function (err, data) {
+	var range = oldHash + ".." + newHash;
+	if(oldHash.match(/^00000/)){//new branch
+		console.log('Looks like a new branch. Only using last commit.')
+		range = newHash + " -n 1";
+	}
+	exec("git log " + range + " --pretty=format:'%H @@ %an @@ %s' ", function (err, data) {
 		var logCommits = data.split('\n');
 		for (var i=0; i < logCommits.length; i++) {
 			var commit = logCommits[i].split(' @@ ');
@@ -46,6 +51,8 @@ function gitLogAuthorAndMessage(oldHash, newHash, refname) {
 						postToPivotal(message, refname, author, hash) 
 					}, i * 1200);
 				})(message, refname, author, hash);
+			} else {
+				console.log('No story found for commit ' + hash);
 			}
 		}		
 	})
@@ -71,7 +78,7 @@ function postToPivotal (message, refName, author, hash) {
 		, 'Content-length': post_msg.length}
 	};
 
-	console.log('Start posting: ' + hash + " " + message);
+	console.log('Start posting to tracker: ' + hash + " " + message);
 	
 	var req = https.request(options, function(res) {
 		var data = '';
