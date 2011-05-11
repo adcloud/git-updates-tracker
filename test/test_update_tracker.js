@@ -1,9 +1,10 @@
 var vows = require('vows'),
-	assert = require('assert');
-var update_tracker = require('../update_tracker');
+	assert = require('assert'),
+	update_tracker = require('../update_tracker'),
+	countAndCall = require('./lib/util').countAndCall;
 
 vows.describe('Update Tracker').addBatch({
-	'hashes and refs in a single commit': {
+	'grep hashes and refs from a single commit line': {
 		topic: function	 () {
 			var git_commit_line = '123123 abcdef xyzxyz\n';
 			update_tracker.grepHashesAndRef(git_commit_line, this.callback);
@@ -14,18 +15,15 @@ vows.describe('Update Tracker').addBatch({
 			assert.equal ('xyzxyz', refName);
 		}
 	},
-	'hashes and refs in multiple commits': {
+	'grep hashes and refs from multiple commit lines': {
 		topic: function	 () {
 			var git_commit_line = '123123 abcdef xyzxyz\n234234 qweqwe rtzrtz\n';
-			update_tracker.grepHashesAndRef(git_commit_line, this.callback);
+			update_tracker.grepHashesAndRef(git_commit_line, countAndCall(2, this.callback));
 		}, 
-		'first line is parsed': function (err, oldHash, newHash, refName) {
-			assert.equal ('123123', oldHash);
-			assert.equal ('abcdef', newHash);
-			assert.equal ('xyzxyz', refName);
-		},
 		'second line is parsed': function (err, oldHash, newHash, refName) {
 			assert.equal ('234234', oldHash);
+			assert.equal ('qweqwe', newHash);
+			assert.equal ('rtzrtz', refName);
 		}
 	}
 })
