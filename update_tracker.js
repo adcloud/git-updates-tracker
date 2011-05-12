@@ -1,6 +1,7 @@
 var https = require('https')
 	, util = require('util')
 	, exec = require('child_process').exec
+	, chainEm = require('./chainem')
 var API_TOCKEN = require('./tracker_token');
 
 /**
@@ -11,13 +12,13 @@ function readStdIn(callback) {
 	process.stdin.setEncoding('utf8');
 	var input = "";
 	process.stdin.on('data', function (chunk) { input += chunk; });
-	process.stdin.on('end', function(callback) { grepHashesAndRef(input, callback) } );	
+	process.stdin.on('end', function() { callback(input) } );	
 }
 
 /**
  * Grep hashes and ref from Gits post-receive input.
  */
-function grepHashesAndRef(input, callback) {
+function grepHashesAndRef(callback, input) {
 	var lines = input.split('\n');
 	lines.pop();//remove last empty line
 	for (var i=0; i < lines.length; i++) {
@@ -25,7 +26,6 @@ function grepHashesAndRef(input, callback) {
 		var oldHash = line[0];
 		var newHash = line[1];
 		var refName = line[2];
-		console.log("going to call " + util.inspect(callback));
 		callback(null, oldHash, newHash, refName);
 	}
 }
@@ -33,7 +33,7 @@ function grepHashesAndRef(input, callback) {
 /**
  * Get author and message via git log
  */
-function gitLogAuthorAndMessage(err, oldHash, newHash, refname) {
+function gitLogAuthorAndMessage(callback, err, oldHash, newHash, refname) {
 	exec("git log " + oldHash + ".." + newHash + " --pretty=format:'%H @@ %an @@ %s' ", function (err, data) {
 		var logCommits = data.split('\n');
 		for (var i=0; i < logCommits.length; i++) {
@@ -45,7 +45,7 @@ function gitLogAuthorAndMessage(err, oldHash, newHash, refname) {
 			if(messageContainsStoryId) {
 				(function (message, refname, author, hash) {
 					setTimeout(function() { 
-						postToPivotal(message, refname, author, hash) 
+						callback(message, refname, author, hash) 
 					}, i * 1200);
 				})(message, refname, author, hash);
 			}
@@ -56,7 +56,7 @@ function gitLogAuthorAndMessage(err, oldHash, newHash, refname) {
 /**
  * Posts the informations to PivotalTracker
  */
-function postToPivotal (message, refName, author, hash) {
+function postToPivotal (callback, message, refName, author, hash) {
 	var post_msg = 
 	'<source_commit>'
 	+ '<message>Branch:' + refName + '\n' + message + '</message>'
@@ -75,6 +75,7 @@ function postToPivotal (message, refName, author, hash) {
 
 	console.log('Start posting: ' + hash + " " + message);
 	
+	/*
 	var req = https.request(options, function(res) {
 		var data = '';
 		res.setEncoding('utf8');
@@ -92,11 +93,13 @@ function postToPivotal (message, refName, author, hash) {
 	});
 	req.write(post_msg);
 	req.end();
+	*/
 }
 
 exports.grepHashesAndRef = grepHashesAndRef;
 exports.gitLogAuthorAndMessage = gitLogAuthorAndMessage;
 
+chainEm(readStdIn, grepHashesAndRef, gitLogAuthorAndMessage, postToPivotal)();
 
 //readStdIn(gitLogAuthorAndMessage)
 
