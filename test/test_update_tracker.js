@@ -1,7 +1,7 @@
 var vows = require('vows'),
 	assert = require('assert'),
 	update_tracker = require('../update_tracker'),
-	countAndCall = require('./lib/util').countAndCall;
+	countAndCall = require('../testlib/util').countAndCall;
 
 vows.describe('Update Tracker').addBatch({
 	'grep hashes and refs from a single commit line': {

@@ -101,6 +101,3 @@ exports.gitLogAuthorAndMessage = gitLogAuthorAndMessage;
 
 chainEm(readStdIn, grepHashesAndRef, gitLogAuthorAndMessage, postToPivotal)();
 
-//readStdIn(gitLogAuthorAndMessage)
-
-
