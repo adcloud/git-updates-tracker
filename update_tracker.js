@@ -1,22 +1,24 @@
 var https = require('https')
+	, util = require('util')
 	, exec = require('child_process').exec
+	, async = require('async')
 var API_TOCKEN = require('./tracker_token');
 
 /**
  * Read from Stdin. Input should be Git from a post-receive.
  */
-function readStdIn() {
+function readStdIn (callback) {
 	process.stdin.resume();
 	process.stdin.setEncoding('utf8');
 	var input = "";
 	process.stdin.on('data', function (chunk) { input += chunk; });
-	process.stdin.on('end', function() { grepHashesAndRef(input) } );	
+	process.stdin.on('end', function() { callback(null, input); });
 }
 
 /**
  * Grep hashes and ref from Gits post-receive input.
  */
-function grepHashesAndRef(input) {
+function grepHashesAndRef (input, callback) {	
 	var lines = input.split('\n');
 	lines.pop();//remove last empty line
 	for (var i=0; i < lines.length; i++) {
@@ -24,14 +26,15 @@ function grepHashesAndRef(input) {
 		var oldHash = line[0];
 		var newHash = line[1];
 		var refName = line[2];
-		gitLogAuthorAndMessage(oldHash, newHash, refName);
+		
+		callback(null, oldHash, newHash, refName);
 	}
 }
 
 /**
  * Get author and message via git log
  */
-function gitLogAuthorAndMessage(oldHash, newHash, refname) {
+function gitLogAuthorAndMessage (oldHash, newHash, refname, callback) {
 	exec("git log " + oldHash + ".." + newHash + " --pretty=format:'%H @@ %an @@ %s' ", function (err, data) {
 		var logCommits = data.split('\n');
 		for (var i=0; i < logCommits.length; i++) {
@@ -43,7 +46,7 @@ function gitLogAuthorAndMessage(oldHash, newHash, refname) {
 			if(messageContainsStoryId) {
 				(function (message, refname, author, hash) {
 					setTimeout(function() { 
-						postToPivotal(message, refname, author, hash) 
+						callback(null, message, refname, author, hash) 
 					}, i * 1200);
 				})(message, refname, author, hash);
 			}
@@ -54,7 +57,7 @@ function gitLogAuthorAndMessage(oldHash, newHash, refname) {
 /**
  * Posts the informations to PivotalTracker
  */
-function postToPivotal (message, refName, author, hash) {
+function postToPivotal (message, refName, author, hash, callback) {
 	var post_msg = 
 	'<source_commit>'
 	+ '<message>Branch:' + refName + '\n' + message + '</message>'
@@ -72,7 +75,9 @@ function postToPivotal (message, refName, author, hash) {
 	};
 
 	console.log('Start posting: ' + hash + " " + message);
+	callback("finish");
 	
+	/*
 	var req = https.request(options, function(res) {
 		var data = '';
 		res.setEncoding('utf8');
@@ -81,17 +86,24 @@ function postToPivotal (message, refName, author, hash) {
 		});
 		res.on('end', function (chunk) {
 			var success =  (res.statusCode === 200) ? 'success: ' : 'failed: ';
-			console.log('Post ' + success + hash + " " + message);
+			callback('Post ' + success + hash + " " + message);
 			if(res.statusCode !== 200) {
-				console.log(data);
+				callback(data);
 			}
 			
 		});
 	});
 	req.write(post_msg);
 	req.end();
+	*/
 }
+console.log('starting update_tracker...');
+async.waterfall([readStdIn, grepHashesAndRef, gitLogAuthorAndMessage, postToPivotal], function(msg) {
+	console.log(msg);
+});
 
-readStdIn()
+//exports for tests
+exports.grepHashesAndRef = grepHashesAndRef;
+exports.gitLogAuthorAndMessage = gitLogAuthorAndMessage;
 
 
