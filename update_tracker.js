@@ -40,7 +40,7 @@ function gitLogAuthorAndMessage (oldHash, newHash, refname, callback) {
 		console.log('Looks like a new branch. Only using last commit.')
 		range = newHash + " -n 1";
 	}
-	exec("git log " + oldHash + ".." + newHash + " --pretty=format:'%H @@ %an @@ %s' ", function (err, data) {
+	exec("git log " + range + " --pretty=format:'%H @@ %an @@ %s' ", function (err, data) {
 		var logCommits = data.split('\n');
 		for (var i=0; i < logCommits.length; i++) {
 			var commit = logCommits[i].split(' @@ ');
@@ -82,9 +82,7 @@ function postToPivotal (message, refName, author, hash, callback) {
 	};
 
 	console.log('Start posting: ' + hash + " " + message);
-	callback("finish");
 	
-	/*
 	var req = https.request(options, function(res) {
 		var data = '';
 		res.setEncoding('utf8');
@@ -96,13 +94,11 @@ function postToPivotal (message, refName, author, hash, callback) {
 			callback('Post ' + success + hash + " " + message);
 			if(res.statusCode !== 200) {
 				callback(data);
-			}
-			
+			}			
 		});
 	});
 	req.write(post_msg);
 	req.end();
-	*/
 }
 console.log('starting update_tracker...');
 async.waterfall([readStdIn, grepHashesAndRef, gitLogAuthorAndMessage, postToPivotal], function(msg) {
