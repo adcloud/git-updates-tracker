@@ -1,1 +1,1 @@
-module.exports = '';
+module.exports = 'YOUR API TOKEN';
