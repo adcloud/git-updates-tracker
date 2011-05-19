@@ -45,7 +45,7 @@ function gitLogAuthorAndMessage(callback, err, oldHash, newHash, refname) {
 			if(messageContainsStoryId) {
 				(function (message, refname, author, hash) {
 					setTimeout(function() { 
-						callback(message, refname, author, hash) 
+						callback(null, message, refname, author, hash) 
 					}, i * 1200);
 				})(message, refname, author, hash);
 			}
@@ -56,7 +56,7 @@ function gitLogAuthorAndMessage(callback, err, oldHash, newHash, refname) {
 /**
  * Posts the informations to PivotalTracker
  */
-function postToPivotal (callback, message, refName, author, hash) {
+function postToPivotal (callback, err, message, refName, author, hash) {
 	var post_msg = 
 	'<source_commit>'
 	+ '<message>Branch:' + refName + '\n' + message + '</message>'

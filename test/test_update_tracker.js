@@ -27,5 +27,20 @@ vows.describe('Update Tracker').addBatch({
 			assert.equal ('rtzrtz', refName);
 		}
 	}
+	,
+	'git log author and message from one commit': {
+		topic: function	 () {
+			var oldHash = "1a798f52394ca7958404b0c5b870fe6f2d2cbf04";
+			var newHash = "631794a3473f51b1807da9c8be705c3ff6e35820";
+			var refname = "my branch";
+			update_tracker.gitLogAuthorAndMessage(this.callback, null, oldHash, newHash, refname);
+		}, 
+		'commit message from one line is fetched': function (err, message, refname, author, hash) {
+			assert.equal ('[#123] testcommit', message);
+			assert.equal ('my branch', refname);
+			assert.equal ('Matthias Luebken', author);
+			assert.equal ("631794a3473f51b1807da9c8be705c3ff6e35820", hash);
+		}
+	}
 })
 .export(module); // Export the Suite
