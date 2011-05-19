@@ -1,1 +1,1 @@
-module.exports = 'YOUR API TOKEN';
+module.exports = 'YOUR API TOKEN See https://www.pivotaltracker.com/profile';
