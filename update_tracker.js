@@ -23,22 +23,22 @@ function grepHashesAndRef (input, callback) {
 	lines.pop();//remove last empty line
 	for (var i=0; i < lines.length; i++) {
 		var line = lines[i].split(' ');
-		var oldHash = line[0];
-		var newHash = line[1];
-		var refName = line[2];
+		var old_hash = line[0];
+		var new_hash = line[1];
+		var refname = line[2];
 		
-		callback(null, oldHash, newHash, refName);
+		callback(null, old_hash, new_hash, refname);
 	}
 }
 
 /**
  * Get author and message via git log
  */
-function gitLogAuthorAndMessage (oldHash, newHash, refname, callback) {
-	var range = oldHash + ".." + newHash;
-	if(oldHash.match(/^00000/)){//new branch
+function gitLogAuthorAndMessage (old_hash, new_hash, refname, callback) {
+	var range = old_hash + ".." + new_hash;
+	if(old_hash.match(/^00000/)){//new branch
 		console.log('Looks like a new branch. Only using last commit.')
-		range = newHash + " -n 1";
+		range = new_hash + " -n 1";
 	}
 	exec("git log " + range + " --pretty=format:'%H @@ %an @@ %s' ", function (err, data) {
 		var logCommits = data.split('\n');
@@ -47,11 +47,11 @@ function gitLogAuthorAndMessage (oldHash, newHash, refname, callback) {
 			var hash = commit[0];
 			var author = commit[1];
 			var message = commit[2];
-			var messageContainsStoryId = message.match(/\[\#.*\]/);
-			if(messageContainsStoryId) {
+			var message_contains_story_id = message.match(/\[\#(.*)\]/);
+			if(message_contains_story_id) {
 				(function (message, refname, author, hash) {
 					setTimeout(function() { 
-						callback(null, message, refname, author, hash) 
+						callback(null, message_contains_story_id[1], message, refname, author, hash) 
 					}, i * 1200);
 				})(message, refname, author, hash);
 			} else {
@@ -61,17 +61,20 @@ function gitLogAuthorAndMessage (oldHash, newHash, refname, callback) {
 	})
 }
 
-/**
- * Posts the informations to PivotalTracker
- */
-function postToPivotal (message, refName, author, hash, callback) {
+function prepareMessageForPivotal(story_id, message, refname, author, hash, callback) {
 	var post_msg = 
 	'<source_commit>'
-	+ '<message>Branch:' + refName + '\n' + message + '</message>'
+	+ '<message>Branch:' + refname + '\n' + message + '</message>'
 	+ '<author>' + author + '</author>'
 	+ '<commit_id>' + hash + '</commit_id>'
 	+ '</source_commit>';
+	callback(null, post_msg, story_id);
+}
 
+/**
+ * Posts the informations to PivotalTracker
+ */
+function postToPivotal (post_msg, story_id, callback) {
 	var options = {
 		host: 'www.pivotaltracker.com',
 		path: '/services/v3/source_commits',
@@ -81,7 +84,7 @@ function postToPivotal (message, refName, author, hash, callback) {
 		, 'Content-length': post_msg.length}
 	};
 
-	console.log('Start posting: ' + hash + " " + message);
+	console.log('Start posting for story ' + story_id);
 	
 	var req = https.request(options, function(res) {
 		var data = '';
@@ -90,8 +93,8 @@ function postToPivotal (message, refName, author, hash, callback) {
 			data += chunk;
 		});
 		res.on('end', function (chunk) {
-			var success =  (res.statusCode === 200) ? 'success: ' : 'failed: ';
-			callback('Post ' + success + hash + " " + message);
+			var success =  (res.statusCode === 200) ? 'success for ' : 'failed ';
+			callback('Post ' + success + story_id);
 			if(res.statusCode !== 200) {
 				callback(data);
 			}			
@@ -100,13 +103,14 @@ function postToPivotal (message, refName, author, hash, callback) {
 	req.write(post_msg);
 	req.end();
 }
-console.log('starting update_tracker...');
-async.waterfall([readStdIn, grepHashesAndRef, gitLogAuthorAndMessage, postToPivotal], function(msg) {
+
+async.waterfall([readStdIn, grepHashesAndRef, gitLogAuthorAndMessage, prepareMessageForPivotal, postToPivotal], function(msg) {
 	console.log(msg);
 });
 
 //exports for tests
 exports.grepHashesAndRef = grepHashesAndRef;
 exports.gitLogAuthorAndMessage = gitLogAuthorAndMessage;
+exports.prepareMessageForPivotal = prepareMessageForPivotal;
 
 
