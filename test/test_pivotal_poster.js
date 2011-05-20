@@ -1,6 +1,6 @@
 var vows = require('vows'),
 	assert = require('assert'),
-	update_tracker = require('../update_tracker');
+	pivotal_poster = require('../pivotal_poster')();
 	
 vows.describe('Pivotal Poster').addBatch({	
 	'prepare message for pivotal': {
@@ -10,7 +10,7 @@ vows.describe('Pivotal Poster').addBatch({
 			var refname = "my branch";
 			var author = "der held vom erdbeerfeld";
 			var hash = "631794a3473f51b1807da9c8be705c3ff6e35820";
-			update_tracker.prepareMessageForPivotal(story_id, message, refname, author, hash, this.callback);
+			pivotal_poster.prepareMessageForPivotal(story_id, message, refname, author, hash, this.callback);
 		}, 
 		'should result in some stupid xml': function (err, post_msg, story_id) {
 			assert.equal ('123', story_id);

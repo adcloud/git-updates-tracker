@@ -1,12 +1,12 @@
 var vows = require('vows'),
 	assert = require('assert'),
-	update_tracker = require('../update_tracker');
+	git_greper = require('../git_greper');
 	
 vows.describe('Update Tracker').addBatch({
 	'grep hashes and refs from a single commit line': {
 		topic: function	 () {
 			var git_commit_line = '123123 abcdef xyzxyz\n';
-			update_tracker.grepHashesAndRef(git_commit_line, this.callback);
+			git_greper.grepHashesAndRef(git_commit_line, this.callback);
 		}, 
 		'are parsed': function (err, old_hash, new_hash, refName) {
 			assert.equal ('123123', old_hash);
@@ -18,7 +18,7 @@ vows.describe('Update Tracker').addBatch({
 	'grep hashes and refs from multiple commit lines': {
 		topic: function	 () {
 			var git_commit_line = '123123 abcdef xyzxyz\n234234 qweqwe rtzrtz\n';
-			update_tracker.grepHashesAndRef(git_commit_line, countAndCall(2, this.callback));
+			git_greper.grepHashesAndRef(git_commit_line, countAndCall(2, this.callback));
 		}, 
 		'second line is parsed': function (err, old_hash, new_hash, refname) {
 			assert.equal ('234234', old_hash);
@@ -32,7 +32,7 @@ vows.describe('Update Tracker').addBatch({
 			var old_hash = "1a798f52394ca7958404b0c5b870fe6f2d2cbf04";
 			var new_hash = "631794a3473f51b1807da9c8be705c3ff6e35820";
 			var refname = "my branch";
-			update_tracker.gitLogAuthorAndMessage(old_hash, new_hash, refname, this.callback);
+			git_greper.gitLogAuthorAndMessage(old_hash, new_hash, refname, this.callback);
 		}, 
 		'commit message from one line is fetched': function (err, story_id, message, refname, author, hash) {
 			assert.equal ('123', story_id);
@@ -48,7 +48,7 @@ vows.describe('Update Tracker').addBatch({
 			var oldHash = "000000000000000000000000";
 			var newHash = "631794a3473f51b1807da9c8be705c3ff6e35820";
 			var refname = "my branch";
-			update_tracker.gitLogAuthorAndMessage(oldHash, newHash, refname, this.callback);
+			git_greper.gitLogAuthorAndMessage(oldHash, newHash, refname, this.callback);
 		}, 
 		'commit message from is fetched': function (err, story_id, message, refname, author, hash) {
 			assert.equal ('123', story_id);

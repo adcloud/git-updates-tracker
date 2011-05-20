@@ -1,8 +1,6 @@
 var	  util = require('util')
-	, exec = require('child_process').exec
-	, async = require('async')
-	, prepareMessageForPivotal = require('./pivotal_poster')().prepareMessageForPivotal
-	, postToPivotal = require('./pivotal_poster')().postToPivotal;
+	, exec = require('child_process').exec;
+	
 /**
  * Read from Stdin. Input should be Git from a post-receive.
  */
@@ -60,13 +58,6 @@ function gitLogAuthorAndMessage (old_hash, new_hash, refname, callback) {
 	})
 }
 
-async.waterfall([readStdIn, grepHashesAndRef, gitLogAuthorAndMessage, prepareMessageForPivotal, postToPivotal], function(msg) {
-	console.log(msg);
-});
-
-//exports for tests
+exports.readStdIn = readStdIn;
 exports.grepHashesAndRef = grepHashesAndRef;
 exports.gitLogAuthorAndMessage = gitLogAuthorAndMessage;
-exports.prepareMessageForPivotal = prepareMessageForPivotal;
-
-

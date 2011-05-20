@@ -1,2 +1,12 @@
-#!/bin/bash
-node hooks/update_tracker.js
+#!/usr/bin/env node
+var readStdIn = require('./git_greper').readStdIn
+	, grepHashesAndRef = require('./git_greper').grepHashesAndRef
+	, gitLogAuthorAndMessage = require('./git_greper').gitLogAuthorAndMessage
+	, prepareMessageForPivotal = require('./pivotal_poster')().prepareMessageForPivotal
+	, postToPivotal = require('./pivotal_poster')().postToPivotal
+	, async = require('async');
+	
+
+async.waterfall([readStdIn, grepHashesAndRef, gitLogAuthorAndMessage, prepareMessageForPivotal, postToPivotal], function(msg) {
+	console.log(msg);
+});
