@@ -2,8 +2,7 @@ var API_TOCKEN = require('./tracker_token');
 
 //optional injection of http for mocking
 module.exports = function(https) {
-	
-	var https = https | require('https');
+	if(!https) https = require('https');
 
 	function prepareMessageForPivotal(story_id, message, refname, author, hash, callback) {
 		var post_msg = 
