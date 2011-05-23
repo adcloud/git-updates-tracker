@@ -43,7 +43,7 @@ vows.describe('Pivotal Poster').addBatch({
 			http_callback(res);
 			res.emit('end');
 		},
-		'should result in an appropriate message' : function (msg) {
+		'should result in a success message' : function (msg) {
 			assert.equal ('Post success for 123', msg)
 			assert.equal ('<message>hello</message>', request.data);
 		}
@@ -59,7 +59,7 @@ vows.describe('Pivotal Poster').addBatch({
 			http_callback(res);
 			res.emit('end');
 		},
-		'should result in an appropriate message' : function (msg) {
+		'should result in a fail message' : function (msg) {
 			assert.equal ('Post failed for 123', msg)
 			assert.equal ('<message>hello</message>', request.data);
 		}
