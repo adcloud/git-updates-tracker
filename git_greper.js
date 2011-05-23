@@ -1,3 +1,6 @@
+/**
+ * Methods to grep git info from a post-receive on stdin and "git log" 
+ */
 var	  util = require('util')
 	, exec = require('child_process').exec;
 	

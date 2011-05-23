@@ -1,3 +1,6 @@
+/**
+ * Formats git informations and posts them to PivotalTracker. 
+ */
 var API_TOCKEN = require('./tracker_token');
 
 //optional injection of http for mocking
