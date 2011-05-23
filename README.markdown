@@ -10,7 +10,7 @@ Enter a PivotalTracker Token in tracker_token.js & and move all the files in .gi
 
 # Usage
 
-The commit messages have to contain a valid story number like: [#123123]
+The commit messages have to contain a valid story number like: '[#123123] a message' or 'see 123 a message' or 'a message see #123'
 
 # Run tests
 

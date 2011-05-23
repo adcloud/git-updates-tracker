@@ -31,6 +31,26 @@ function grepHashesAndRef (input, callback) {
 	}
 }
 
+function buildMessage (message) {
+	var match = message.match(/([sS][eE][eE] #)(\d*)/) || message.match(/([sS][eE][eE] )(\d*)/);
+	if(match) {
+		story_id = match[2];
+		message = message.split(match[0]).join('');
+		message = message.replace(/^\s*/, '').replace(/\s*$/, '');
+		message = '[#'+story_id+'] ' + message;
+	}
+	return message;
+}
+
+function extractStoryId (message) {
+	var story_id;
+	var tracker_regex = /\[\#(\d*)\]/;
+	if(message.match(tracker_regex)) {
+		 story_id = message.match(tracker_regex)[1];
+	}
+	return story_id;
+}
+
 /**
  * Get author and message via git log
  */
@@ -46,16 +66,8 @@ function gitLogAuthorAndMessage (old_hash, new_hash, refname, callback) {
 			var commit = logCommits[i].split(' @@ ');
 			var hash = commit[0];
 			var author = commit[1];
-			var message = commit[2];
-			var story_id;
-			var tracker_regex = /\[\#(\d*)\]/;
-			var see_regex = /(see #)(\d*)/;
-			if(message.match(tracker_regex)) { //tracker syntax
-				 story_id = message.match(tracker_regex)[1];
-			} else if(message.match(see_regex)) { //see syntax
-				story_id = message.match(see_regex)[2];
-				message = '[#'+story_id+']' + message.split(message.match(see_regex)[0])[1];
-			}
+			var message = buildMessage(commit[2]);
+			var story_id = extractStoryId(message);
 			if(story_id) {
 				(function (message, refname, author, hash) {
 					setTimeout(function() { 
@@ -70,5 +82,6 @@ function gitLogAuthorAndMessage (old_hash, new_hash, refname, callback) {
 }
 
 exports.readStdIn = readStdIn;
+exports.buildMessage = buildMessage;
 exports.grepHashesAndRef = grepHashesAndRef;
 exports.gitLogAuthorAndMessage = gitLogAuthorAndMessage;

@@ -73,6 +73,28 @@ vows.describe('Update Tracker').addBatch({
 			assert.equal ('Matthias Luebken', author);
 		}
 	}
+	,
+	'build message with see syntax': {
+		topic: git_greper.buildMessage('see #123 testmessage'), 
+		'should result in a tracker conform message': function (message) {
+			assert.equal ('[#123] testmessage', message);
+		}
+		,
+		topic: git_greper.buildMessage('see 123 testmessage'), 
+		'should result in a tracker conform message': function (message) {
+			assert.equal ('[#123] testmessage', message);
+		}
+		,
+		topic: git_greper.buildMessage('testmessage see 123'), 
+		'should result in a tracker conform message': function (message) {
+			assert.equal ('[#123] testmessage', message);
+		}
+		,
+		topic: git_greper.buildMessage('testmessage See 123'), 
+		'should result in a tracker conform message': function (message) {
+			assert.equal (message, '[#123] testmessage');
+		}
+	}
 })
 .export(module); // Export the Suite
 
