@@ -47,11 +47,19 @@ function gitLogAuthorAndMessage (old_hash, new_hash, refname, callback) {
 			var hash = commit[0];
 			var author = commit[1];
 			var message = commit[2];
-			var message_contains_story_id = message.match(/\[\#(.*)\]/);
-			if(message_contains_story_id) {
+			var story_id;
+			var tracker_regex = /\[\#(\d*)\]/;
+			var see_regex = /(see #)(\d*)/;
+			if(message.match(tracker_regex)) { //tracker syntax
+				 story_id = message.match(tracker_regex)[1];
+			} else if(message.match(see_regex)) { //see syntax
+				story_id = message.match(see_regex)[2];
+				message = '[#'+story_id+']' + message.split(message.match(see_regex)[0])[1];
+			}
+			if(story_id) {
 				(function (message, refname, author, hash) {
 					setTimeout(function() { 
-						callback(null, message_contains_story_id[1], message, refname, author, hash) 
+						callback(null,story_id, message, refname, author, hash) 
 					}, i * 1200);
 				})(message, refname, author, hash);
 			} else {

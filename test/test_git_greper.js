@@ -58,6 +58,21 @@ vows.describe('Update Tracker').addBatch({
 			assert.equal ("631794a3473f51b1807da9c8be705c3ff6e35820", hash);
 		}
 	}
+	,
+	'git log supports see syntax': {
+		topic: function	 () {
+			var old_hash = "8731700838bcb1eb2418a0fce86a733023b7a2a0";
+			var new_hash = "5fbc831a09cca712c9bcb5d260b1242f7ed5acd8";
+			var refname = "my branch";
+			git_greper.gitLogAuthorAndMessage(old_hash, new_hash, refname, this.callback);
+		}, 
+		'commit message from one line is fetched': function (err, story_id, message, refname, author, hash) {
+			assert.equal ('123', story_id);
+			assert.equal ('[#123] testmessage', message);
+			assert.equal ('my branch', refname);
+			assert.equal ('Matthias Luebken', author);
+		}
+	}
 })
 .export(module); // Export the Suite
 
