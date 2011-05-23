@@ -10,8 +10,7 @@ request.write = function(data) {
 	this.data = data;
 };
 request.end = function() {};
-var res = new EventEmitter();
-res.setEncoding = function() {};
+
 var http_callback;
 http_mock.request = function(options, cb) {
 	http_callback = cb;
@@ -38,12 +37,30 @@ vows.describe('Pivotal Poster').addBatch({
 		topic: function () {
 			var message = "<message>hello</message>";
 			pivotal_poster.postToPivotal(message, '123', this.callback);
+			var res = new EventEmitter();
 			res.statusCode = 200;
+			res.setEncoding = function() {};
 			http_callback(res);
 			res.emit('end');
 		},
-		'should result in an approriate message' : function (msg) {
+		'should result in an appropriate message' : function (msg) {
 			assert.equal ('Post success for 123', msg)
+			assert.equal ('<message>hello</message>', request.data);
+		}
+	}	
+	,
+	'a failed post' : {
+		topic: function () {
+			var message = "<message>hello</message>";
+			pivotal_poster.postToPivotal(message, '123', this.callback);
+			var res = new EventEmitter();
+			res.statusCode = 400;
+			res.setEncoding = function() {};
+			http_callback(res);
+			res.emit('end');
+		},
+		'should result in an appropriate message' : function (msg) {
+			assert.equal ('Post failed for 123', msg)
 			assert.equal ('<message>hello</message>', request.data);
 		}
 	}
