@@ -7,6 +7,6 @@ var readStdIn = require('./git_greper').readStdIn
 	, async = require('async');
 	
 
-async.waterfall([readStdIn, grepHashesAndRef, gitLogAuthorAndMessage, prepareMessageForPivotal, postToPivotal], function(msg) {
+async.waterfall([readStdIn, grepHashesAndRef, gitLogAuthorAndMessage, prepareMessageForPivotal, postToPivotal], function(err, msg) {
 	console.log(msg);
 });

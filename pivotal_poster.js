@@ -36,11 +36,8 @@ module.exports = function(https) {
 				data += chunk;
 			});
 			res.on('end', function (chunk) {
-				var success =  (res.statusCode === 200) ? 'success for ' : 'failed ';
-				callback('Post ' + success + story_id);
-				if(res.statusCode !== 200) {
-					callback(data);
-				}			
+				var success =  (res.statusCode === 200) ? 'success for ' : 'failed for ';
+				callback(null, 'Post ' + success + story_id);
 			});
 		});
 		req.write(post_msg);
