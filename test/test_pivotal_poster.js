@@ -6,7 +6,9 @@ var vows = require('vows'),
 
 //mocks
 var request = function() {};
-request.write = function() {};
+request.write = function(data) {
+	this.data = data;
+};
 request.end = function() {};
 var res = new EventEmitter();
 res.setEncoding = function() {};
@@ -32,17 +34,17 @@ vows.describe('Pivotal Poster').addBatch({
 		}
 	}
 	,
-	'post to pivotal' : {
+	'a successfull post to pivotal' : {
 		topic: function () {
 			var message = "<message>hello</message>";
-			var story_id = "123";
-			pivotal_poster.postToPivotal(message, story_id, this.callback);
+			pivotal_poster.postToPivotal(message, '123', this.callback);
 			res.statusCode = 200;
 			http_callback(res);
 			res.emit('end');
 		},
-		'should do something' : function (msg) {
-			assert.equal ('Post success for 123', msg);
+		'should result in an approriate message' : function (msg) {
+			assert.equal ('Post success for 123', msg)
+			assert.equal ('<message>hello</message>', request.data);
 		}
 	}
 })
