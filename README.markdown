@@ -16,6 +16,13 @@ The commit messages have to contain a valid story number like: [#123123]
 
 vows test/*
 
+
+# Run manual tests
+
+cp * ~/tmp/sample-origin/.git/hooks/
+echo "abc" >> test.dat; git add test.dat; git commit -m "[#12535165] xxx"; git push;
+
 # TODOs
 - Find the right commits if its a new branch. http://stackoverflow.com/questions/3511057/git-receive-update-hooks-and-new-branches
 - Use Notation: see #123, closes #123, fixes #123
+
