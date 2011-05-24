@@ -94,6 +94,11 @@ vows.describe('Update Tracker').addBatch({
 		'should result in a tracker conform message': function (message) {
 			assert.equal (message, '[#123] testmessage');
 		}
+		,
+		topic: git_greper.buildMessage('see, this is awesome\n* see #12535165'), 
+		'should result in a tracker conform message': function (message) {
+			assert.equal (message, '[#12535165] see, this is awesome\n*');
+		}
 	}
 })
 .export(module); // Export the Suite
