@@ -60,7 +60,7 @@ function gitLogAuthorAndMessage (old_hash, new_hash, refname, callback) {
 		console.log('Looks like a new branch. Only using last commit.')
 		range = new_hash + " -n 1";
 	}
-	exec("git log " + range + " --pretty=format:'%H @@ %an @@ %s' ", function (err, data) {
+	exec("git log " + range + " --pretty=format:'%H @@ %an @@ %B' ", function (err, data) {
 		var logCommits = data.split('\n');
 		for (var i=0; i < logCommits.length; i++) {
 			var commit = logCommits[i].split(' @@ ');
