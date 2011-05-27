@@ -36,7 +36,7 @@ vows.describe('Update Tracker').addBatch({
 		}, 
 		'commit message from one line is fetched': function (err, story_id, message, refname, author, hash) {
 			assert.equal ('123', story_id);
-			assert.equal (message, '[#123] testcommit\n');
+			assert.equal (message, '[#123] testcommit');
 			assert.equal ('my branch', refname);
 			assert.equal ('Matthias Luebken', author);
 			assert.equal ("631794a3473f51b1807da9c8be705c3ff6e35820", hash);
@@ -52,7 +52,7 @@ vows.describe('Update Tracker').addBatch({
 		}, 
 		'commit message from is fetched': function (err, story_id, message, refname, author, hash) {
 			assert.equal ('123', story_id);
-			assert.equal ('[#123] testcommit\n', message);
+			assert.equal ('[#123] testcommit', message);
 			assert.equal ('my branch', refname);
 			assert.equal ('Matthias Luebken', author);
 			assert.equal ("631794a3473f51b1807da9c8be705c3ff6e35820", hash);
