@@ -46,7 +46,7 @@ function extractStoryId (message) {
 	var story_id;
 	var tracker_regex = /\[\#(\d*)\]/;
 	if(message.match(tracker_regex)) {
-		 story_id = message.match(tracker_regex)[1];
+		story_id = message.match(tracker_regex)[1];
 	}
 	return story_id;
 }
@@ -60,10 +60,12 @@ function gitLogAuthorAndMessage (old_hash, new_hash, refname, callback) {
 		console.log('Looks like a new branch. Only using last commit.')
 		range = new_hash + " -n 1";
 	}
-	exec("git log " + range + " --pretty=format:'%H @@ %an @@ %B' ", function (err, data) {
-		var logCommits = data.split('\n');
+	var gitlog = "git log " + range + " --pretty=format:'%H @@ %an @@ %B @end@' ";
+	exec(gitlog, function (err, data) {
+		var logCommits = data.split(' @end@');		
 		for (var i=0; i < logCommits.length; i++) {
 			var commit = logCommits[i].split(' @@ ');
+			if(commit.length == 1) break; //not a valid commit message
 			var hash = commit[0];
 			var author = commit[1];
 			var message = buildMessage(commit[2]);
@@ -78,6 +80,7 @@ function gitLogAuthorAndMessage (old_hash, new_hash, refname, callback) {
 				console.log('No story found for commit ' + hash);
 			}
 		}		
+		
 	})
 }
 

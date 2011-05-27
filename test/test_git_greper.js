@@ -36,7 +36,7 @@ vows.describe('Update Tracker').addBatch({
 		}, 
 		'commit message from one line is fetched': function (err, story_id, message, refname, author, hash) {
 			assert.equal ('123', story_id);
-			assert.equal ('[#123] testcommit', message);
+			assert.equal (message, '[#123] testcommit\n');
 			assert.equal ('my branch', refname);
 			assert.equal ('Matthias Luebken', author);
 			assert.equal ("631794a3473f51b1807da9c8be705c3ff6e35820", hash);
@@ -52,7 +52,7 @@ vows.describe('Update Tracker').addBatch({
 		}, 
 		'commit message from is fetched': function (err, story_id, message, refname, author, hash) {
 			assert.equal ('123', story_id);
-			assert.equal ('[#123] testcommit', message);
+			assert.equal ('[#123] testcommit\n', message);
 			assert.equal ('my branch', refname);
 			assert.equal ('Matthias Luebken', author);
 			assert.equal ("631794a3473f51b1807da9c8be705c3ff6e35820", hash);
@@ -66,11 +66,11 @@ vows.describe('Update Tracker').addBatch({
 			var refname = "my branch";
 			git_greper.gitLogAuthorAndMessage(old_hash, new_hash, refname, this.callback);
 		}, 
-		'commit message from one line is fetched': function (err, story_id, message, refname, author, hash) {
-			assert.equal ('123', story_id);
-			assert.equal ('[#123] testmessage', message);
+		'story id is extracted from a see message message ': function (err, story_id, message, refname, author, hash) {
 			assert.equal ('my branch', refname);
 			assert.equal ('Matthias Luebken', author);
+			assert.equal ('[#123] testmessage', message);
+			assert.equal (story_id, '123');
 		}
 	}
 	,
@@ -98,6 +98,11 @@ vows.describe('Update Tracker').addBatch({
 		topic: git_greper.buildMessage('see, this is awesome\n* see #12535165'), 
 		'should result in a tracker conform message': function (message) {
 			assert.equal (message, '[#12535165] see, this is awesome\n*');
+		}
+		,
+		topic: git_greper.buildMessage('see, this is awesome\n* see #12535165\n* see #12535165'), 
+		'should result in a tracker conform message': function (message) {
+			assert.equal (message, '[#12535165] see, this is awesome\n* \n*');
 		}
 	}
 })
